@@ -1,34 +1,45 @@
-  
-   services:
-     # MySQL/MariaDB-Datenbank
-     db:
-       image: mariadb:latest  # Offizielles DB-Image
-       volumes:
-         - db_data:/var/lib/mysql  # Persistente Speicherung
-       environment:
-         MYSQL_ROOT_PASSWORD: example_root_pw  # Root-Passwort
-         MYSQL_DATABASE: wordpress  # Automatisch erstellte DB
-         MYSQL_USER: wp_user  # WordPress-DB-User
-         MYSQL_PASSWORD: wp_password  # User-Passwort
-       restart: always  # Automatischer Neustart
-   
-     # WordPress-Container
-     wordpress:
-       depends_on:  # Startet erst nach der DB
-         - db
-       image: wordpress:latest  # Offizielles WordPress-Image
-       ports:
-         - "8080:80"  # Port-Mapping (Host:Container)
-       volumes:
-         - wp_data:/var/www/html  # Themes/Plugins bleiben erhalten
-       environment:
-         WORDPRESS_DB_HOST: db  # Verweis auf DB-Service
-         WORDPRESS_DB_USER: wp_user  # DB-User (siehe oben)
-         WORDPRESS_DB_PASSWORD: wp_password  # DB-Passwort
-         WORDPRESS_DB_NAME: wordpress  # Datenbankname
-       restart: always
-   
-   # Definition der Volumes für persistente Daten
-   volumes:
-     db_data:  # Speichert DB-Daten
-     wp_data:  # Speichert WordPress-Inhalte
+services:
+  # MySQL/MariaDB-Datenbank
+  db:
+    image: mariadb:latest  # Offizielles DB-Image
+    volumes:
+      - db_data:/var/lib/mysql  # Persistente Speicherung
+    environment:
+      MYSQL_ROOT_PASSWORD: example_root_pw  # Root-Passwort
+      MYSQL_DATABASE: wordpress  # Automatisch erstellte DB
+      MYSQL_USER: wp_user  # WordPress-DB-User
+      MYSQL_PASSWORD: wp_password  # User-Passwort
+    restart: always  # Automatischer Neustart
+
+  # WordPress-Container
+  wordpress:
+    depends_on:  # Startet erst nach der DB
+      - db
+    image: wordpress:latest  # Offizielles WordPress-Image
+    ports:
+      - "8080:80"  # Port-Mapping (Host:Container)
+    volumes:
+      - wp_data:/var/www/html  # Themes/Plugins bleiben erhalten
+    environment:
+      WORDPRESS_DB_HOST: db  # Verweis auf DB-Service
+      WORDPRESS_DB_USER: wp_user  # DB-User (siehe oben)
+      WORDPRESS_DB_PASSWORD: wp_password  # DB-Passwort
+      WORDPRESS_DB_NAME: wordpress  # Datenbankname
+    restart: always
+
+  # phpMyAdmin für die Datenbankverwaltung
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - "8081:80"  # phpMyAdmin über http://localhost:8081 erreichbar
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: example_root_pw  # Zugang zur DB mit Root-Passwort
+    restart: always
+
+# Definition der Volumes für persistente Daten
+volumes:
+  db_data:  # Speichert DB-Daten
+  wp_data:  # Speichert WordPress-Inhalte
