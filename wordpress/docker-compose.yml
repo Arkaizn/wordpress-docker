@@ -1,5 +1,4 @@
-   version: "3.8"  # Docker-Compose-Version
-   
+  
    services:
      # MySQL/MariaDB-Datenbank
      db:
